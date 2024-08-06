@@ -12,8 +12,8 @@ const levelIntroStartPosition: Vector3 = vector3(28, 70, 269);
 const levelIntroEndPosition: Vector3 = vector3(39, 70, 269);
 const levelIntro: Level = new Level(
   () => {
-    world.sendMessage("%message.intro.started");
-    pupeteer.setTitleTimed("%message.intro.title", 2.5);
+    pupeteer.sendWorldMessage("%message.intro.started");
+    pupeteer.setTitleTimed("%message.intro.started", 2.5);
     startLevel(levelIntroCommandBlockPos);
     teleportAgent(levelIntroStartPosition);
   },

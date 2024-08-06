@@ -1,7 +1,7 @@
-import { BlockType, MinecraftBlockTypes, Vector3, World } from "@minecraft/server";
+import { BlockType, Vector3, World } from "@minecraft/server";
 
 export type blockCondition = {
-  block: BlockType;
+  block: string;
   position: Vector3;
 };
 

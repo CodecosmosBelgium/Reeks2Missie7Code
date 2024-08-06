@@ -1,10 +1,17 @@
-import { world, system, MinecraftBlockTypes, Vector3, MolangVariableMap } from "@minecraft/server";
+import { world, system, Vector3, MolangVariableMap, BlockVolume } from "@minecraft/server";
 import { Mindkeeper, Store, StoreType } from "./Commandeer/mindKeeper";
 import Pupeteer from "./Commandeer/pupeteer";
 import Level from "./Commandeer/level/level";
 import { leverOn } from "./Commandeer/level/levelTypes";
 import { levelIntroConditions } from "./levelConditions/levelIntro";
-import { Vector3Abs, Vector3Add, Vector3Multiply, Vector3ToString, vector3 } from "./Commandeer/utils/vectorUtils";
+import {
+  Vector3Abs,
+  Vector3Add,
+  Vector3Multiply,
+  Vector3ToFancyString,
+  Vector3ToString,
+  vector3,
+} from "./Commandeer/utils/vectorUtils";
 import { delayedRun } from "./Commandeer/utils/waitUtil";
 import { Wall, clearWall, fillWall, startLevel } from "./Commandeer/utils/levelUtils";
 import { Trail } from "./Commandeer/trail/trailEngine";
@@ -18,12 +25,15 @@ import * as agentUtils from "./Commandeer/utils/agentUtils";
 import level2 from "./levels/level2";
 import level3 from "./levels/level3";
 import { level3Conditions } from "./levelConditions/level3";
+import { MinecraftBlockTypes } from "./vanilla-data/mojang-block";
 
 const mindKeeper = new Mindkeeper(world);
 const pupeteer = new Pupeteer(world);
 const CURRENT_LEVEL = "currentLevel";
 const AGENT_ID = "agentid";
 export { pupeteer, mindKeeper, CURRENT_LEVEL };
+
+const DEVELOPER_MODE = true;
 
 let vaultDoor: Wall = {
   startPos: vector3(40, 72, 273),
@@ -179,11 +189,13 @@ system.runInterval(() => {
   }
 });
 
-world.afterEvents.worldInitialize.subscribe(({ propertyRegistry }) => {
+world.afterEvents.worldInitialize.subscribe(() => {
   mindKeeper.registerStore(CURRENT_LEVEL, StoreType.number);
   mindKeeper.registerStore(AGENT_ID, StoreType.string);
-  mindKeeper.registerToWorld(propertyRegistry);
+  mindKeeper.registerToWorld();
 });
+
+world.getDimension("overworld").getEntities({ type: "minecraft:agent" });
 
 world.afterEvents.chatSend.subscribe((event) => {
   const command = event.message.split(" ")[0];
@@ -192,7 +204,7 @@ world.afterEvents.chatSend.subscribe((event) => {
 
   if (command === "!reset") {
     world.sendMessage("Resetting");
-    fillWall(vaultDoor, MinecraftBlockTypes.ironBars);
+    fillWall(vaultDoor, MinecraftBlockTypes.IronBars);
     mindKeeper.set(CURRENT_LEVEL, 0);
     levelIntro.reset();
     resetDoorAnimation();
@@ -222,18 +234,18 @@ world.afterEvents.chatSend.subscribe((event) => {
 
     startLevel(noLevelCommandBlockPos);
   }
-  if (command == "!test") {
+  if (command == "!test" && DEVELOPER_MODE) {
     world.sendMessage("Testing");
     levelIntroConditions.conditions.forEach((condition) => {
       let pos: Vector3 = Vector3Add(condition.position, vector3(0, 4, 0));
       if (condition.state) {
-        world.getDimension("overworld").fillBlocks(pos, pos, MinecraftBlockTypes.greenWool);
+        world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.GreenWool);
       } else {
-        world.getDimension("overworld").fillBlocks(pos, pos, MinecraftBlockTypes.redWool);
+        world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.RedWool);
       }
     });
   }
-  if (command == "!checkAgent") {
+  if (command == "!checkAgent" && DEVELOPER_MODE) {
     let test = agentUtils.getAgentLocation();
     world.sendMessage(Vector3ToString(test));
     let pos = vector3(
@@ -243,23 +255,28 @@ world.afterEvents.chatSend.subscribe((event) => {
     );
     world.sendMessage(agentUtils.isAgentAt(pos).toString());
   }
-  if (command == "!doorFrame") {
+  if (command == "!doorFrame" && DEVELOPER_MODE) {
     playDoorAnimation();
   }
-  if (command == "!resetDoorFrame") {
+  if (command == "!resetDoorFrame" && DEVELOPER_MODE) {
     resetDoorAnimation();
   }
-  if (command == "!setLevers") {
+  if (command == "!setLevers" && DEVELOPER_MODE) {
     levelIntroConditions.conditions.forEach((condition) => {
       setLever(condition.position, LeverDirection.South, condition.state);
     });
   }
-  if (command == "!dingus") {
-    level3Conditions.conditions.forEach((condition) => {
-      let pos: Vector3 = Vector3Add(condition.position, vector3(0, 4, 0));
-
-      world.getDimension("overworld").fillBlocks(pos, pos, MinecraftBlockTypes.redWool);
-    });
+  if (command == "!info") {
+    world.sendMessage("-----------------");
+    world.sendMessage("Current level: " + mindKeeper.get(CURRENT_LEVEL));
+    world.sendMessage("Agent ID: " + mindKeeper.get(AGENT_ID));
+    world.sendMessage("Engine Version: 1.0.1");
+    world.sendMessage("Engine is running");
+    world.sendMessage("Active players: " + world.getPlayers().length);
+    world.sendMessage("Current dimension: " + event.sender.dimension.id);
+    world.sendMessage("Current position: " + Vector3ToFancyString(event.sender.location));
+    world.sendMessage("is door open: " + doorOpen);
+    world.sendMessage("-----------------");
   }
 });
 system.afterEvents.scriptEventReceive.subscribe((event) => {

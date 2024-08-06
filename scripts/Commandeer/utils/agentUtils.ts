@@ -1,4 +1,4 @@
-import { MinecraftEntityTypes, Vector3, world } from "@minecraft/server";
+import { Vector3, world } from "@minecraft/server";
 import { Vector3ToString, vector3 } from "./vectorUtils";
 import { mindKeeper } from "../../main";
 function teleportAgent(position: Vector3) {

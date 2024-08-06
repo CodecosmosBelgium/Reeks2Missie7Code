@@ -31,6 +31,10 @@ class Pupeteer {
     });
   }
 
+  sendWorldMessage(message: string): void {
+    this.world.sendMessage(this.getActualString(message));
+  }
+
   setTitleTimed(message: string, duration: number): void {
     this.world.getPlayers().forEach((player) => {
       let options: TitleDisplayOptions = {

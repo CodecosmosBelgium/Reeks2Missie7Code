@@ -1,4 +1,4 @@
-import { ChatSendAfterEvent, DynamicPropertiesDefinition, PropertyRegistry, World } from "@minecraft/server";
+import { ChatSendAfterEvent, Vector3, World, system } from "@minecraft/server";
 
 class Store {
   type: StoreType;
@@ -29,7 +29,6 @@ enum StoreType {
  */
 class Mindkeeper {
   registerdStores: Array<Store> = [];
-  propertyManager = new DynamicPropertiesDefinition();
   world: World;
   initialised: boolean = false;
   debugLog: string[] = [];
@@ -72,10 +71,9 @@ class Mindkeeper {
    * Registers the dynamic properties to the world's property registry.
    * @param propertyRegistry The property registry of the world.
    */
-  registerToWorld(propertyRegistry: PropertyRegistry) {
+  registerToWorld() {
     for (let i = 0; i < this.registerdStores.length; i++) {
       let isAlreadyDefined = true;
-
       try {
         let test = this.world.getDynamicProperty(this.registerdStores[i].getName());
         if (test === undefined) {
@@ -89,20 +87,19 @@ class Mindkeeper {
       }
       switch (this.registerdStores[i].getType()) {
         case StoreType.string:
-          this.propertyManager.defineString(this.registerdStores[i].getName(), 255);
+          this.world.setDynamicProperty(this.registerdStores[i].getName(), "");
           this.debugLog.push("registerd string" + this.registerdStores[i].getName());
           break;
         case StoreType.number:
-          this.propertyManager.defineNumber(this.registerdStores[i].getName(), 0);
+          this.world.setDynamicProperty(this.registerdStores[i].getName(), 0);
           this.debugLog.push("registerd number" + this.registerdStores[i].getName());
           break;
         case StoreType.boolean:
-          this.propertyManager.defineBoolean(this.registerdStores[i].getName(), false);
+          this.world.setDynamicProperty(this.registerdStores[i].getName(), false);
           this.debugLog.push("registerd boolean" + this.registerdStores[i].getName());
           break;
       }
     }
-    propertyRegistry.registerWorldDynamicProperties(this.propertyManager);
     this.initialised = true;
   }
 
@@ -111,12 +108,14 @@ class Mindkeeper {
    * @param store The name of the store.
    * @param value The value to set.
    */
-  set(store: string, value: string | number | boolean): void {
+  set(store: string, value: string | number | boolean | Vector3): void {
     if (this.registerdStores.find((s) => s.getName() === store)?.getType() != typeof value) {
       this.world.sendMessage(`Store ${store} is not of type ${typeof value}`);
       return;
     }
-    this.world.setDynamicProperty(store, value);
+    system.run(() => {
+      this.world.setDynamicProperty(store, value);
+    });
   }
 
   /**
@@ -124,7 +123,7 @@ class Mindkeeper {
    * @param store The name of the store.
    * @returns The value of the store, or undefined if the store is not defined.
    */
-  get(store: string): string | number | boolean | undefined {
+  get(store: string): string | number | boolean | Vector3 | undefined {
     try {
       let data = this.world.getDynamicProperty(store);
       if (data === undefined) {
@@ -153,6 +152,7 @@ class Mindkeeper {
    * Handles chat commands by executing the corresponding actions.
    * @param event The chat send after event.
    */
+  private secondWarning = false;
   chatCommands(event: ChatSendAfterEvent) {
     const command = event.message.split(" ")[0];
     const args = event.message.split(" ").slice(1);
@@ -164,12 +164,41 @@ class Mindkeeper {
     }
     if (command === "!set") {
       const store = event.message.split(" ")[1];
+      if (store === undefined) {
+        this.world.sendMessage(`Please provide a store to set`);
+        return;
+      }
       const value = event.message.split(" ")[2];
+      if (value === undefined) {
+        this.world.sendMessage(`Please provide a value to set for ${store}`);
+        return;
+      }
       const type = event.message.split(" ")[3];
-      if (type === "number") {
-        this.set(store, Number(value));
-      } else {
-        this.set(store, value);
+
+      let actualType = this.getStores()
+        .find((s) => s.getName() === store)
+        ?.getType();
+
+      if (actualType === undefined) {
+        this.world.sendMessage(`Store ${store} is not defined`);
+        return;
+      }
+
+      switch (actualType) {
+        case StoreType.string:
+          this.set(store, String(value));
+          break;
+        case StoreType.number:
+          if (isNaN(Number(value))) {
+            this.world.sendMessage(`Can't parse ${value} as a number`);
+            return;
+          }
+          this.set(store, Number(value));
+          break;
+        case StoreType.boolean:
+          const ActualValue = value.toLowerCase();
+          this.set(store, ActualValue === "true");
+          break;
       }
       this.world.sendMessage(`Value of ${store} is ${value}`);
     }
@@ -177,6 +206,20 @@ class Mindkeeper {
       this.getStores().forEach((store) => {
         this.world.sendMessage(`${store.getName()} is ${store.getType()}`);
       });
+    }
+    if (command === "!deleteStores") {
+      this.world.sendMessage("ARE YOU SURE YOU WANT TO DELETE ALL STORES? THIS COULD CAUSE ISSUES");
+      this.world.sendMessage("If you are sure, type !deleteStoresConfirm");
+      this.secondWarning = true;
+    }
+    if (this.secondWarning) {
+      if (command === "!deleteStoresConfirm") {
+        this.getStores().forEach((store) => {
+          this.world.sendMessage(`Deleting ${store.getName()}`);
+        });
+        this.world.clearDynamicProperties();
+        this.secondWarning = false;
+      }
     }
   }
 }

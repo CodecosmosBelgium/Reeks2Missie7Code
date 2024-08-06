@@ -1,6 +1,7 @@
-import { BlockType, MinecraftBlockTypes, Vector3 } from "@minecraft/server";
+import { BlockType, Vector3 } from "@minecraft/server";
 import { LevelBlockCondition } from "../Commandeer/level/levelTypes";
 import { vector3 } from "../Commandeer/utils/vectorUtils";
+import { MinecraftBlockTypes } from "../vanilla-data/mojang-block";
 
 let level3Conditions: LevelBlockCondition = {
   conditions: [

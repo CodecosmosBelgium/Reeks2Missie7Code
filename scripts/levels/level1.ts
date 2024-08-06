@@ -1,4 +1,4 @@
-import { MinecraftBlockTypes, Vector3, world } from "@minecraft/server";
+import { BlockVolume, Vector3, world } from "@minecraft/server";
 import Level from "../Commandeer/level/level";
 import { leverOn } from "../Commandeer/level/levelTypes";
 import { teleportAgent, isAgentAt } from "../Commandeer/utils/agentUtils";
@@ -7,6 +7,7 @@ import { vector3 } from "../Commandeer/utils/vectorUtils";
 import { levelIntroConditions } from "../levelConditions/levelIntro";
 import { CURRENT_LEVEL, mindKeeper, pupeteer } from "../main";
 import { level1Conditions, level1NoGoZones } from "../levelConditions/level1";
+import { MinecraftBlockTypes } from "../vanilla-data/mojang-block";
 
 const Level1CommandBlockPos: Vector3 = vector3(58, 66, 277);
 const level1StartPosition: Vector3 = vector3(54, 70, 216);
@@ -14,8 +15,8 @@ const Level1EndPosition: Vector3 = vector3(75, 70, 216);
 const level1ResetCommandBlockPos: Vector3 = vector3(56, 68, 211);
 const level1: Level = new Level(
   () => {
-    world.sendMessage("%message.level1.started");
-    pupeteer.setTitleTimed("%message.level1.title", 2.5);
+    pupeteer.sendWorldMessage("%message.level1.started");
+    pupeteer.setTitleTimed("%message.level1.name", 2.5);
     startLevel(Level1CommandBlockPos);
     teleportAgent(level1StartPosition);
   },
@@ -24,7 +25,7 @@ const level1: Level = new Level(
   },
   () => {
     pupeteer.clearActionBar();
-    world.sendMessage("%message.level1.complete");
+    pupeteer.sendWorldMessage("%message.level1.complete");
     pupeteer.setTitleTimed("%message.level1.complete", 2.5);
 
     mindKeeper.increment(CURRENT_LEVEL);
@@ -34,7 +35,7 @@ const level1: Level = new Level(
     let isOutOfBounds = false;
 
     level1Conditions.conditions.forEach((condition) => {
-      if (condition.block != world.getDimension("Overworld").getBlock(condition.position)?.type) {
+      if (condition.block != world.getDimension("Overworld").getBlock(condition.position)?.type.id) {
         isComplete = false;
       }
     });
@@ -56,7 +57,10 @@ const level1: Level = new Level(
       pupeteer.updateSubtitle("%message.level.incorrect.subtext");
       world
         .getDimension("overworld")
-        .fillBlocks(level1ResetCommandBlockPos, level1ResetCommandBlockPos, MinecraftBlockTypes.redstoneBlock);
+        .fillBlocks(
+          new BlockVolume(level1ResetCommandBlockPos, level1ResetCommandBlockPos),
+          MinecraftBlockTypes.RedstoneBlock
+        );
     }
   }
 );

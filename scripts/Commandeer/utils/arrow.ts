@@ -37,11 +37,11 @@ function rotate(pos: Vector3, angle: number) {
   return vector3(newX, pos.y, newZ);
 }
 
-const particleData = new MolangVariableMap().setColorRGB("variable.color", {
+const particleData = new MolangVariableMap();
+particleData.setColorRGB("variable.color", {
   red: 1,
   green: 1,
   blue: 1,
-  alpha: 1,
 });
 
 function drawArrow(offsetPos: Vector3) {

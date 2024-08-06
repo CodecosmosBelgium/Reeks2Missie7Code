@@ -18,8 +18,6 @@ class TrailPoint {
         .getDimension("overworld")
         .spawnParticle("minecraft:balloon_gas_particle", spawnPosition, new MolangVariableMap());
     } catch (e) {}
-
-    
   }
 }
 
