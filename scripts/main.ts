@@ -1,4 +1,11 @@
-import { world, system, Vector3, MolangVariableMap, BlockVolume } from "@minecraft/server";
+import {
+  world,
+  system,
+  Vector3,
+  MolangVariableMap,
+  BlockVolume,
+  ScriptEventCommandMessageAfterEvent,
+} from "@minecraft/server";
 import { Mindkeeper, Store, StoreType } from "./Commandeer/mindKeeper";
 import Pupeteer from "./Commandeer/pupeteer";
 import Level from "./Commandeer/level/level";
@@ -26,6 +33,7 @@ import level2 from "./levels/level2";
 import level3 from "./levels/level3";
 import { level3Conditions } from "./levelConditions/level3";
 import { MinecraftBlockTypes } from "./vanilla-data/mojang-block";
+import { setNPCDialog } from "./Commandeer/utils/entityUtils";
 
 const mindKeeper = new Mindkeeper(world);
 const pupeteer = new Pupeteer(world);
@@ -33,7 +41,7 @@ const CURRENT_LEVEL = "currentLevel";
 const AGENT_ID = "agentid";
 export { pupeteer, mindKeeper, CURRENT_LEVEL };
 
-const DEVELOPER_MODE = true;
+let DEVELOPER_MODE = true;
 
 let vaultDoor: Wall = {
   startPos: vector3(40, 72, 273),
@@ -120,7 +128,7 @@ system.runInterval(() => {
     const currentLevel = mindKeeper.get(CURRENT_LEVEL);
     switch (currentLevel) {
       case 0:
-        pupeteer.setActionBar("%message.talkto.chanel");
+        pupeteer.setActionBar("%message.talkto.bilal");
         break;
       case 1:
         //intro
@@ -138,8 +146,14 @@ system.runInterval(() => {
         levelIntro.update();
         break;
       case 4:
+        //Talk to bilal
+        setNPCDialog("bilal1", "bilal_afterVault_1");
+        pupeteer.setActionBar("%message.talkto.bilal");
+
+        break;
+      case 5:
         //Door opening
-        pupeteer.setActionBar("OPEN THE DOOR");
+        pupeteer.setActionBar("%message.open.door");
         rotateParticles(vector3(46.5, 71.5, 267.2));
 
         //setblock 46 71 267
@@ -151,7 +165,11 @@ system.runInterval(() => {
           }
         }
         break;
-      case 5:
+      case 6:
+        //Talk to Paul
+        pupeteer.setActionBar("%message.talkto.paul");
+        break;
+      case 7:
         pupeteer.setActionBar("%message.goto.field.1");
         drawArrow(vector3(54.5, 74, 216.5));
         firstTrail.spawnNext();
@@ -159,31 +177,35 @@ system.runInterval(() => {
           mindKeeper.increment(CURRENT_LEVEL);
         }
         break;
-      case 6:
+      case 8:
         level1.update();
         //level 1 start
         break;
-      case 7:
+      case 9:
         pupeteer.setActionBar("%message.goto.field.2");
         drawArrow(vector3(46.5, 74, 220.5));
         if (pupeteer.testForLocation(vector3(46, 70, 220), 2)) {
           mindKeeper.increment(CURRENT_LEVEL);
         }
         break;
-      case 8:
+      case 10:
         level2.update();
         break;
-      case 9:
+      case 11:
         pupeteer.setActionBar("%message.goto.field.3");
         drawArrow(vector3(56.5, 74, 235.5));
         if (pupeteer.testForLocation(vector3(56, 70, 235), 2)) {
           mindKeeper.increment(CURRENT_LEVEL);
         }
         break;
-      case 10:
+      case 12:
         level3.update();
         break;
-      case 11:
+      case 13:
+        setNPCDialog("paul1", "paul_done_1");
+        pupeteer.setActionBar("%message.talkto.paul");
+        break;
+      case 14:
         pupeteer.setActionBar("%message.levels.completed");
     }
   }
@@ -201,71 +223,88 @@ world.afterEvents.chatSend.subscribe((event) => {
   const command = event.message.split(" ")[0];
 
   mindKeeper.chatCommands(event);
-
-  if (command === "!reset") {
-    world.sendMessage("Resetting");
-    fillWall(vaultDoor, MinecraftBlockTypes.IronBars);
-    mindKeeper.set(CURRENT_LEVEL, 0);
-    levelIntro.reset();
-    resetDoorAnimation();
-    doorOpen = false;
-    let origin = vector3(28, 70, 268);
-    for (let i = 0; i < 11; i++) {
-      let pos = Vector3Add(origin, vector3(i, 0, 0));
-      setLever(pos, LeverDirection.South, false);
-    }
-    setLever(vector3(46, 71, 267), LeverDirection.South, false);
-
-    levelIntro.reset();
-
-    //reset level 1
-    level1.reset();
-    startLevel(vector3(56, 68, 211)); //Bit unortodox, but it works
-
-    //reset level 2
-    level2.reset();
-    startLevel(vector3(44, 68, 216));
-
-    //reset level 3
-    level3.reset();
-    startLevel(vector3(54, 68, 242));
-
-    agentUtils.teleportAgent(vector3(28, 70, 269));
-
-    startLevel(noLevelCommandBlockPos);
-  }
-  if (command == "!test" && DEVELOPER_MODE) {
-    world.sendMessage("Testing");
-    levelIntroConditions.conditions.forEach((condition) => {
-      let pos: Vector3 = Vector3Add(condition.position, vector3(0, 4, 0));
-      if (condition.state) {
-        world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.GreenWool);
-      } else {
-        world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.RedWool);
+  if (DEVELOPER_MODE == true) {
+    if (command === "!reset") {
+      world.sendMessage("Resetting");
+      fillWall(vaultDoor, MinecraftBlockTypes.IronBars);
+      mindKeeper.set(CURRENT_LEVEL, 0);
+      levelIntro.reset();
+      resetDoorAnimation();
+      doorOpen = false;
+      let origin = vector3(28, 70, 268);
+      for (let i = 0; i < 11; i++) {
+        let pos = Vector3Add(origin, vector3(i, 0, 0));
+        setLever(pos, LeverDirection.South, false);
       }
+      world.getDimension("overworld").runCommand("/clone 28 65 272 38 68 273 28 67 267"); //Fuck you minecraft
+
+      setLever(vector3(46, 71, 267), LeverDirection.South, false);
+
+      levelIntro.reset();
+
+      //reset level 1
+      level1.reset();
+      startLevel(vector3(56, 68, 211)); //Bit unortodox, but it works
+
+      //reset level 2
+      level2.reset();
+      startLevel(vector3(44, 68, 216));
+
+      //reset level 3
+      level3.reset();
+      startLevel(vector3(54, 68, 242));
+
+      agentUtils.teleportAgent(vector3(28, 70, 269));
+
+      setNPCDialog("bilal1", "bilal_greeting_1");
+      setNPCDialog("paul1", "paul_greeting_1");
+
+      startLevel(noLevelCommandBlockPos);
+    }
+    if (command == "!test" && DEVELOPER_MODE) {
+      world.sendMessage("Testing");
+      levelIntroConditions.conditions.forEach((condition) => {
+        let pos: Vector3 = Vector3Add(condition.position, vector3(0, 4, 0));
+        if (condition.state) {
+          world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.GreenWool);
+        } else {
+          world.getDimension("overworld").fillBlocks(new BlockVolume(pos, pos), MinecraftBlockTypes.RedWool);
+        }
+      });
+    }
+    if (command == "!checkAgent" && DEVELOPER_MODE) {
+      let test = agentUtils.getAgentLocation();
+      world.sendMessage(Vector3ToString(test));
+      let pos = vector3(
+        parseInt(command.split(" ")[1]),
+        parseInt(command.split(" ")[2]),
+        parseInt(command.split(" ")[3])
+      );
+      world.sendMessage(agentUtils.isAgentAt(pos).toString());
+    }
+    if (command == "!doorFrame" && DEVELOPER_MODE) {
+      playDoorAnimation();
+    }
+    if (command == "!resetDoorFrame" && DEVELOPER_MODE) {
+      resetDoorAnimation();
+    }
+    if (command == "!setLevers" && DEVELOPER_MODE) {
+      levelIntroConditions.conditions.forEach((condition) => {
+        setLever(condition.position, LeverDirection.South, condition.state);
+      });
+    }
+  }
+  world.getPlayers()[0].getGameMode();
+  if (command == "!test2") {
+    system.run(() => {
+      world
+        .getDimension("overworld")
+        .runCommand(
+          "execute as @p run codebuilder navigate @s false https://minecraft.makecode.com/?norunonx=1#tutorial:https://github.com/CodecosmosBelgium/pxt-reeks2missie8/t_level1"
+        );
     });
   }
-  if (command == "!checkAgent" && DEVELOPER_MODE) {
-    let test = agentUtils.getAgentLocation();
-    world.sendMessage(Vector3ToString(test));
-    let pos = vector3(
-      parseInt(command.split(" ")[1]),
-      parseInt(command.split(" ")[2]),
-      parseInt(command.split(" ")[3])
-    );
-    world.sendMessage(agentUtils.isAgentAt(pos).toString());
-  }
-  if (command == "!doorFrame" && DEVELOPER_MODE) {
-    playDoorAnimation();
-  }
-  if (command == "!resetDoorFrame" && DEVELOPER_MODE) {
-    resetDoorAnimation();
-  }
-  if (command == "!setLevers" && DEVELOPER_MODE) {
-    levelIntroConditions.conditions.forEach((condition) => {
-      setLever(condition.position, LeverDirection.South, condition.state);
-    });
-  }
+
   if (command == "!info") {
     world.sendMessage("-----------------");
     world.sendMessage("Current level: " + mindKeeper.get(CURRENT_LEVEL));
@@ -277,6 +316,12 @@ world.afterEvents.chatSend.subscribe((event) => {
     world.sendMessage("Current position: " + Vector3ToFancyString(event.sender.location));
     world.sendMessage("is door open: " + doorOpen);
     world.sendMessage("-----------------");
+  }
+
+  if (command == "!k3isgeweldig") {
+    DEVELOPER_MODE = true;
+    world.sendMessage("Developer mode enabled");
+    world.sendMessage("PINA COLADA");
   }
 });
 system.afterEvents.scriptEventReceive.subscribe((event) => {
@@ -291,4 +336,16 @@ system.afterEvents.scriptEventReceive.subscribe((event) => {
     world.sendMessage("Script got the id " + id);
     mindKeeper.set(AGENT_ID, id);
   }
+
+  checkNpcResponse(event, "cc:afterVault", 4);
+  checkNpcResponse(event, "cc:afterPaul", 6);
+  checkNpcResponse(event, "cc:endLevel", 13);
 });
+
+function checkNpcResponse(event: ScriptEventCommandMessageAfterEvent, id: string, level: number) {
+  if (event.id == id) {
+    if (mindKeeper.get(CURRENT_LEVEL) == level) {
+      mindKeeper.increment(CURRENT_LEVEL);
+    }
+  }
+}

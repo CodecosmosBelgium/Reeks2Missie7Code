@@ -38,6 +38,7 @@ class Level {
 
   reset() {
     this.isCompleted = false;
+    this.isSetup = false;
   }
 }
 

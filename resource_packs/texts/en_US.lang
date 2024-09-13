@@ -17,10 +17,10 @@ message.level.outofbounds.subtext=You can't be over water!
 ## npc names
 npc.name.help=Help
 npc.name.suki=§2Suki
-npc.name.bilal=§6Bilal
+npc.name.bilal=§6Bakker Bilal
 npc.name.ramses=§dRamses
 npc.name.chanel=§9Wetenschapper Chanel
-npc.name.paul=§7Paul
+npc.name.paul=§7Psycholoog Paul
 npc.name.farah=§5Farah
 npc.name.turt=§aTurt
 npc.name.mo=§4Mo
@@ -36,8 +36,11 @@ button.letsgo=Let's Go!
 
 message.talkto.ramses=Talk to §dRamses
 message.talkto.chanel=Talk to §9Chanel
+message.talkto.bilal=Talk to §6Bilal
+message.talkto.paul=Talk to §7Paul 
 
 message.goto.vault=Go to the vault
+message.open.door=Open the door
 
 ## Intro messages
 message.intro.started=Crack the Vault!
@@ -67,5 +70,28 @@ message.goto.field.1=Go to the First Field
 message.goto.field.2=Go to the Second Field
 message.goto.field.3=Go to the Last Field
 
-chanel.greeting.1.text=Hello! I'm §9Chanel§0, the scientist. I'm here to help you with the vault.
-chanel.greeting.1.button=Ok!
+## Dialogue texts
+
+bilal.greeting.1.text=Hey daar! We bevinden ons op een enorme katoenplantage. Katoen wordt gebruikt om kleren te maken, maar dat weet je wel. Helaas is deze plantage illegaal, en hebben ze een groot stuk jungle vernietigd hiervoor. Wij gaan ze stoppen 
+bilal.greeting.1.button=Hoe dan?
+
+bilal.greeting.2.text=De eerste stap is om binnen te breken. Kraak de code door de schakelaar aan te zetten als er GEEN kleisteen, maar wel baksteen EN hout op de muur te vinden is. Anders blijft de schakelaar uit.
+bilal.greeting.2.button=Doe ik!
+
+bilal.afterVault.1.text=Goed gedaan, je hebt de code gekraakt! Als je nu de hendel naar omhoog doet, dan kan je langs de poort naar binnen.  
+bilal.afterVault.1.button=OK!
+
+bilal.afterVault.2.text=Ga naar het leerplatform zodat je de volgende opdracht kan volbrengen. Maar eerst: een weetje! Wist je dat meer dan de helft van alle regenwouden op aarde al verdwenen is sinds 1950? 
+bilal.afterVault.2.button=wat erg!
+
+paul.greeting.1.text=Shttttttt, niet te luid! Je hebt net binnengebroken op een enorme katoenplantage. Niemand weet voorlopig dat je hier bent, en dat willen we zo houden.  
+paul.greeting.1.button=Ok!
+
+paul.greeting.2.text=Je gaat de gewassen op deze plantage stiekem saboteren. Doe dit door een conditionele lus te gebruiken.
+paul.greeting.2.button=Ik probeer!
+
+paul.done.1.text=Yes, er zijn al veel gewassen vernietigd! Nu zal het groot bedrijf misschien tot inkeer komen en stoppen met het regenwoud te ontbossen.
+paul.done.1.button=Ja!
+
+paul.done.2.text=Ga terug naar het leerplatform. Maar wacht even, eerst een weetje! Wist je dat regenwouden van groot belang zijn voor het behouden van miljoenen dier- en plantensoorten, dat veel planten gebruikt kunnen worden als medicijnen én dat het regenwoud ervoor zorgt dat de aarde niet nog sneller opwarmt? 
+paul.done.2.button=Wow!

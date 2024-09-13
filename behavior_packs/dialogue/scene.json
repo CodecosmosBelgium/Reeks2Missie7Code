@@ -3,18 +3,18 @@
   "minecraft:npc_dialogue": {
     "scenes": [
       {
-        "scene_tag": "chanel_greeting_1",
+        "scene_tag": "bilal_greeting_1",
         "npc_name": {
           "rawtext": [
             {
-              "translate": "npc.name.chanel"
+              "translate": "npc.name.bilal"
             }
           ]
         },
         "text": {
           "rawtext": [
             {
-              "translate": "chanel.greeting.1.text",
+              "translate": "bilal.greeting.1.text",
               "with": ["\n"]
             }
           ]
@@ -24,11 +24,221 @@
             "name": {
               "rawtext": [
                 {
-                  "translate": "chanel.greeting.1.button"
+                  "translate": "bilal.greeting.1.button"
+                }
+              ]
+            },
+            "commands": ["/dialogue open @e[tag=bilal1] @initiator bilal_greeting_2"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "bilal_greeting_2",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.bilal"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "bilal.greeting.2.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "bilal.greeting.2.button"
                 }
               ]
             },
             "commands": ["/scriptevent cc:startIntro"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "bilal_afterVault_1",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.bilal"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "bilal.afterVault.1.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "bilal.afterVault.1.button"
+                }
+              ]
+            },
+            "commands": ["/dialogue open @e[tag=bilal1] @initiator bilal_afterVault_2"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "bilal_afterVault_2",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.bilal"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "bilal.afterVault.2.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "bilal.afterVault.2.button"
+                }
+              ]
+            },
+            "commands": ["/scriptevent cc:afterVault"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "paul_greeting_1",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.paul"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "paul.greeting.1.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "paul.greeting.1.button"
+                }
+              ]
+            },
+            "commands": ["/dialogue open @e[tag=paul1] @initiator paul_greeting_2"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "paul_greeting_2",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.paul"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "paul.greeting.2.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "paul.greeting.2.button"
+                }
+              ]
+            },
+            "commands": ["/scriptevent cc:afterPaul"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "paul_done_1",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.paul"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "paul.done.1.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "paul.done.1.button"
+                }
+              ]
+            },
+            "commands": ["/dialogue open @e[tag=paul1] @initiator paul_done_2"]
+          }
+        ]
+      },
+      {
+        "scene_tag": "paul_done_2",
+        "npc_name": {
+          "rawtext": [
+            {
+              "translate": "npc.name.paul"
+            }
+          ]
+        },
+        "text": {
+          "rawtext": [
+            {
+              "translate": "paul.done.2.text",
+              "with": ["\n"]
+            }
+          ]
+        },
+        "buttons": [
+          {
+            "name": {
+              "rawtext": [
+                {
+                  "translate": "paul.done.2.button"
+                }
+              ]
+            },
+            "commands": ["/scriptevent cc:endLevel"]
           }
         ]
       }

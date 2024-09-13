@@ -2,11 +2,11 @@
 
 const bpfoldername = "reeks2missie8";
 const isStoreVersion = true;
-
+copy_world_to_export_folder;
 // === Optional variables
 
 const exportWorldFolderPath =
-  "/Users/Bram/AppData/Local/Packages/Microsoft.MinecraftEducationEdition_8wekyb3d8bbwe/LocalState/games/com.mojang/minecraftWorlds/NUiVZVJMLAA=";
+  "/Users/Bram/AppData/Local/Packages/Microsoft.MinecraftEducationEdition_8wekyb3d8bbwe/LocalState/games/com.mojang/minecraftWorlds/JvnFZT1WYwA=";
 
 // === END CONFIGURABLE VARIABLES
 
@@ -349,17 +349,15 @@ function add_version_to_world_name(cb) {
 }
 
 function copy_build_resource_pack_to_export_folder(cb) {
-  gulp
-    .src(["build/resource_packs/" + bpfoldername + "/**/**"])
+  return gulp
+    .src(["build/resource_packs/**/**"])
     .pipe(gulp.dest("export/" + bpfoldername + "/resource_packs/" + bpfoldername));
-  cb();
 }
 
 function copy_build_behavior_pack_to_export_folder(cb) {
-  gulp
-    .src(["build/behavior_packs/" + bpfoldername + "/**/**"])
+  return gulp
+    .src(["build/behavior_packs/**/**"])
     .pipe(gulp.dest("export/" + bpfoldername + "/behavior_packs/" + bpfoldername));
-  cb();
 }
 
 function copy_world_to_export_folder(cb) {
@@ -379,6 +377,7 @@ function copy_world_to_export_folder(cb) {
       return gulp.src([world.path + "/**/*"]).pipe(gulp.dest("export/" + bpfoldername));
     });
   } else {
+    console.warn("Better change the path so you don't have to do this every time");
     return gulp.src([exportWorldFolderPath + "/**/*"]).pipe(gulp.dest("export/" + bpfoldername));
   }
   //copy the build to the correct folder
